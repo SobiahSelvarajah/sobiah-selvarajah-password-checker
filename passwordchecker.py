@@ -1,5 +1,6 @@
 import requests
 import hashlib
+import sys
 
 
 # func - requesting data from the API url
@@ -20,7 +21,7 @@ def password_leaks_count(response_hashes, my_password_hash):
     for res_hash, count in response_hashes:
         if res_hash == my_password_hash:
             return count
-        return 0
+    return 0
 
 
 # func - checks existence of password in API response using sha1 algo
@@ -31,9 +32,23 @@ def pwned_api_response_check(my_password):
     first5char = sha1pass[:5]
     tail = sha1pass[5:]
     response = request_api_data(first5char)
-    print(first5char, tail)
-    print(response)
     return password_leaks_count(response, tail)
 
 
-pwned_api_response_check('123')
+# func - receives the arguments that are inputted via terminal
+def main_input(args):
+    for passwords in args:
+        count = pwned_api_response_check(passwords)
+        if count:
+            print(f'{passwords} was leaked {count} number of times, please consider changing it.')
+        else:
+            print(f'The password {passwords} was not found, please continue.')
+    return 'Successfully running!'
+
+
+# call main func
+# accepts list of arguments after python3
+# only run file if it is run from command line (no imported files)
+# sys.exit to exit the system
+if __name__ == '__main__':
+    sys.exit(main_input(sys.argv[1:]))
